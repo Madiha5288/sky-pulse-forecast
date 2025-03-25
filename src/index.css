@@ -116,6 +116,7 @@
     background-image: url('/lovable-uploads/0cb3313e-38f0-4527-8d1c-7482a9af0ed1.png');
     background-size: cover;
     background-position: center;
+    background-attachment: fixed; /* Keep background fixed when scrolling */
   }
   
   .weather-bg-clear-night {
@@ -123,6 +124,7 @@
                       url('/lovable-uploads/0ad24d47-ac26-4524-8ea6-81b7ead53588.png');
     background-size: cover;
     background-position: center;
+    background-attachment: fixed;
   }
   
   .weather-bg-cloudy {
@@ -130,6 +132,7 @@
                       url('/lovable-uploads/0ad24d47-ac26-4524-8ea6-81b7ead53588.png');
     background-size: cover;
     background-position: center;
+    background-attachment: fixed;
   }
   
   .weather-bg-rain {
@@ -137,6 +140,7 @@
                       url('/lovable-uploads/baadfff4-9f1a-4ce6-819c-64b9727e2f85.png');
     background-size: cover;
     background-position: center;
+    background-attachment: fixed;
   }
   
   .weather-bg-thunderstorm {
@@ -144,6 +148,7 @@
                       url('/lovable-uploads/baadfff4-9f1a-4ce6-819c-64b9727e2f85.png');
     background-size: cover;
     background-position: center;
+    background-attachment: fixed;
   }
   
   .weather-bg-snow {
@@ -151,6 +156,7 @@
                       url('/lovable-uploads/882d4d51-3a8d-4906-9fcd-5003e9237298.png');
     background-size: cover;
     background-position: center;
+    background-attachment: fixed;
   }
   
   .weather-bg-mist {
@@ -158,6 +164,15 @@
                       url('/lovable-uploads/0ad24d47-ac26-4524-8ea6-81b7ead53588.png');
     background-size: cover;
     background-position: center;
+    background-attachment: fixed;
+  }
+  
+  .weather-bg-windy {
+    background-image: linear-gradient(to bottom, rgba(100, 150, 200, 0.3), rgba(80, 120, 150, 0.6)), 
+                      url('/lovable-uploads/0ad24d47-ac26-4524-8ea6-81b7ead53588.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
   }
 }
 

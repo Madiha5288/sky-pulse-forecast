@@ -16,7 +16,7 @@ interface HourlyForecastProps {
 }
 
 export const HourlyForecast: React.FC<HourlyForecastProps> = ({ 
-  hourlyForecast, 
+  hourlyForecast = [], // Provide default empty array to prevent map errors
   className 
 }) => {
   return (
@@ -30,7 +30,7 @@ export const HourlyForecast: React.FC<HourlyForecastProps> = ({
       </CardHeader>
       <CardContent className="pb-4">
         <div className="flex overflow-x-auto gap-3 pb-2 scrollbar-hide">
-          {hourlyForecast.map((hour, index) => (
+          {hourlyForecast?.map((hour, index) => (
             <WeatherCard
               key={hour.time}
               date={hour.time}
