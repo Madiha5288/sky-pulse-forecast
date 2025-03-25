@@ -48,7 +48,7 @@ const Index = () => {
   };
 
   return (
-    <div className={`min-h-screen ${getWeatherBackground()} transition-colors duration-1000`}>
+    <div className={`min-h-screen w-full ${getWeatherBackground()}`}>
       <div className="container mx-auto px-4 py-12">
         <div className="space-y-8 max-w-5xl mx-auto">
           <div className="text-center mb-10 animate-fade-in">

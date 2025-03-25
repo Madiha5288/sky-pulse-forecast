@@ -63,7 +63,7 @@ export const fetchWeatherData = (location: string): Promise<WeatherData> => {
       const customData = {...mockWeatherData};
       customData.location = location || mockWeatherData.location;
       
-      // Randomize the condition to show different backgrounds
+      // Use one of the specific conditions from our CSS
       const conditions = ["clear-day", "clear-night", "cloudy", "rain", "thunderstorm", "snow", "mist", "windy"];
       const randomCondition = conditions[Math.floor(Math.random() * conditions.length)];
       customData.current.condition = randomCondition;
