@@ -110,6 +110,55 @@
   .weather-gradient-mist {
     @apply bg-gradient-to-br from-indigo-100 to-gray-200;
   }
+
+  /* Weather background images */
+  .weather-bg-clear-day {
+    background-image: url('/lovable-uploads/0cb3313e-38f0-4527-8d1c-7482a9af0ed1.png');
+    background-size: cover;
+    background-position: center;
+  }
+  
+  .weather-bg-clear-night {
+    background-image: linear-gradient(to bottom, rgba(0, 0, 30, 0.4), rgba(0, 0, 50, 0.7)), 
+                      url('/lovable-uploads/0ad24d47-ac26-4524-8ea6-81b7ead53588.png');
+    background-size: cover;
+    background-position: center;
+  }
+  
+  .weather-bg-cloudy {
+    background-image: linear-gradient(to bottom, rgba(80, 80, 80, 0.3), rgba(120, 120, 120, 0.5)), 
+                      url('/lovable-uploads/0ad24d47-ac26-4524-8ea6-81b7ead53588.png');
+    background-size: cover;
+    background-position: center;
+  }
+  
+  .weather-bg-rain {
+    background-image: linear-gradient(to bottom, rgba(20, 20, 100, 0.3), rgba(10, 10, 30, 0.6)), 
+                      url('/lovable-uploads/baadfff4-9f1a-4ce6-819c-64b9727e2f85.png');
+    background-size: cover;
+    background-position: center;
+  }
+  
+  .weather-bg-thunderstorm {
+    background-image: linear-gradient(to bottom, rgba(30, 30, 60, 0.4), rgba(20, 20, 40, 0.7)), 
+                      url('/lovable-uploads/baadfff4-9f1a-4ce6-819c-64b9727e2f85.png');
+    background-size: cover;
+    background-position: center;
+  }
+  
+  .weather-bg-snow {
+    background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.3), rgba(230, 230, 250, 0.6)), 
+                      url('/lovable-uploads/882d4d51-3a8d-4906-9fcd-5003e9237298.png');
+    background-size: cover;
+    background-position: center;
+  }
+  
+  .weather-bg-mist {
+    background-image: linear-gradient(to bottom, rgba(200, 200, 200, 0.5), rgba(180, 180, 200, 0.7)), 
+                      url('/lovable-uploads/0ad24d47-ac26-4524-8ea6-81b7ead53588.png');
+    background-size: cover;
+    background-position: center;
+  }
 }
 
 @layer utilities {
@@ -127,5 +176,16 @@
   
   .text-shadow-lg {
     text-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
   }
 }

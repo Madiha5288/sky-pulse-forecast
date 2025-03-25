@@ -16,6 +16,11 @@ export interface WeatherData {
     temperature: number;
     condition: string;
   }>;
+  hourlyForecast: Array<{
+    time: string;
+    temperature: number;
+    condition: string;
+  }>;
 }
 
 const mockWeatherData: WeatherData = {
@@ -35,6 +40,17 @@ const mockWeatherData: WeatherData = {
     { date: "Thu", temperature: 18, condition: "rain" },
     { date: "Fri", temperature: 20, condition: "cloudy" },
     { date: "Sat", temperature: 22, condition: "clear-day" },
+  ],
+  hourlyForecast: [
+    { time: "Now", temperature: 21, condition: "clear-day" },
+    { time: "10 AM", temperature: 22, condition: "clear-day" },
+    { time: "11 AM", temperature: 23, condition: "clear-day" },
+    { time: "12 PM", temperature: 24, condition: "cloudy" },
+    { time: "1 PM", temperature: 24, condition: "cloudy" },
+    { time: "2 PM", temperature: 23, condition: "rain" },
+    { time: "3 PM", temperature: 22, condition: "rain" },
+    { time: "4 PM", temperature: 21, condition: "cloudy" },
+    { time: "5 PM", temperature: 20, condition: "clear-day" },
   ]
 };
 
@@ -46,6 +62,12 @@ export const fetchWeatherData = (location: string): Promise<WeatherData> => {
     setTimeout(() => {
       const customData = {...mockWeatherData};
       customData.location = location || mockWeatherData.location;
+      
+      // Randomize the condition to show different backgrounds
+      const conditions = ["clear-day", "clear-night", "cloudy", "rain", "thunderstorm", "snow", "mist"];
+      const randomCondition = conditions[Math.floor(Math.random() * conditions.length)];
+      customData.current.condition = randomCondition;
+      
       resolve(customData);
     }, 500);
   });
