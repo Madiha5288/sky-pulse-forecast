@@ -10,6 +10,7 @@ interface WeatherCardProps {
   condition: string;
   className?: string;
   isCurrentDay?: boolean;
+  style?: React.CSSProperties;
 }
 
 export const WeatherCard: React.FC<WeatherCardProps> = ({ 
@@ -17,7 +18,8 @@ export const WeatherCard: React.FC<WeatherCardProps> = ({
   temperature, 
   condition, 
   className,
-  isCurrentDay = false
+  isCurrentDay = false,
+  style
 }) => {
   const getCardBackground = () => {
     switch (condition) {
@@ -48,6 +50,7 @@ export const WeatherCard: React.FC<WeatherCardProps> = ({
         "glass-card",
         className
       )}
+      style={style}
     >
       <CardContent className="p-4 flex flex-col items-center">
         <p className="text-sm font-medium text-foreground/80">{date}</p>
