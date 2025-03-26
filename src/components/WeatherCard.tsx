@@ -44,10 +44,10 @@ export const WeatherCard: React.FC<WeatherCardProps> = ({
   return (
     <Card 
       className={cn(
-        "overflow-hidden transition-all duration-300 hover:shadow-lg",
+        "overflow-hidden transition-all duration-300 hover:shadow-lg hover:scale-105",
         isCurrentDay ? "border-2 border-primary shadow-md" : "border border-white/30",
         getCardBackground(),
-        "glass-card",
+        "glass-card hover-lift",
         className
       )}
       style={style}

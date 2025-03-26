@@ -48,7 +48,7 @@ export const CurrentWeather: React.FC<CurrentWeatherProps> = ({
 
   return (
     <Card className={cn(
-      "overflow-hidden glass-card animate-fade-in",
+      "overflow-hidden glass-card animate-fade-in hover-lift",
       "backdrop-blur-lg bg-white/20 border-white/30",
       className
     )}>
@@ -60,7 +60,7 @@ export const CurrentWeather: React.FC<CurrentWeatherProps> = ({
           </div>
           
           <div className="flex items-center gap-3">
-            <WeatherIcon condition={condition as any} size={64} />
+            <WeatherIcon condition={condition as any} size={64} className="animate-float" />
             <div className="text-right">
               <p className="text-5xl font-bold text-shadow-sm">{temperature}°</p>
               <p className="text-sm text-foreground/70">Feels like {feelsLike}°</p>
@@ -69,11 +69,11 @@ export const CurrentWeather: React.FC<CurrentWeatherProps> = ({
         </div>
 
         <div className="grid grid-cols-2 gap-4 mt-6">
-          <div className="flex flex-col items-center p-3 bg-white/30 rounded-lg">
+          <div className="flex flex-col items-center p-3 bg-white/30 rounded-lg hover:bg-white/40 transition-colors">
             <span className="text-sm text-foreground/70">Humidity</span>
             <span className="text-xl font-medium">{humidity}%</span>
           </div>
-          <div className="flex flex-col items-center p-3 bg-white/30 rounded-lg">
+          <div className="flex flex-col items-center p-3 bg-white/30 rounded-lg hover:bg-white/40 transition-colors">
             <span className="text-sm text-foreground/70">Wind Speed</span>
             <span className="text-xl font-medium">{windSpeed} km/h</span>
           </div>

@@ -6,11 +6,13 @@ import { HourlyForecast } from "@/components/HourlyForecast";
 import { SearchBar } from "@/components/SearchBar";
 import { fetchWeatherData, WeatherData } from "@/utils/weatherUtils";
 import { useToast } from "@/components/ui/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Index = () => {
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   const fetchWeather = async (location?: string) => {
     try {
@@ -42,30 +44,29 @@ const Index = () => {
   };
 
   const getWeatherBackground = () => {
-    if (!weatherData) return "";
-    
+    if (!weatherData) return "weather-bg-clear-day";
     return `weather-bg-${weatherData.current.condition}`;
   };
 
   return (
-    <div className={`min-h-screen w-full ${getWeatherBackground()}`}>
-      <div className="container mx-auto px-4 py-12">
-        <div className="space-y-8 max-w-5xl mx-auto">
-          <div className="text-center mb-10 animate-fade-in">
-            <h1 className="text-4xl font-bold mb-2 text-white text-shadow">Weather Forecast</h1>
-            <p className="text-lg text-white/90 text-shadow-sm">Get accurate weather information instantly</p>
+    <div className={getWeatherBackground()}>
+      <div className="container mx-auto px-4 py-6 md:py-12">
+        <div className="space-y-6 max-w-5xl mx-auto">
+          <div className="text-center mb-6 md:mb-10 animate-fade-in">
+            <h1 className="text-3xl md:text-4xl font-bold mb-2 text-white text-shadow">Weather Forecast</h1>
+            <p className="text-base md:text-lg text-white/90 text-shadow-sm">Get accurate weather information instantly</p>
           </div>
           
-          <SearchBar onSearch={handleSearch} className="mx-auto mb-8" />
+          <SearchBar onSearch={handleSearch} className="mx-auto mb-6 md:mb-8" />
           
           {isLoading ? (
-            <div className="flex justify-center items-center min-h-[300px]">
+            <div className="flex justify-center items-center min-h-[200px] md:min-h-[300px]">
               <div className="animate-pulse-slow text-center text-white">
                 <p className="text-lg">Loading weather data...</p>
               </div>
             </div>
           ) : weatherData ? (
-            <div className="space-y-8">
+            <div className={`space-y-5 md:space-y-8 ${isMobile ? 'pb-10' : ''}`}>
               <CurrentWeather 
                 location={weatherData.location}
                 temperature={weatherData.current.temperature}
