@@ -47,7 +47,7 @@ export const WeatherCard: React.FC<WeatherCardProps> = ({
         "overflow-hidden transition-all duration-300 hover:shadow-lg hover:scale-105",
         isCurrentDay ? "border-2 border-primary shadow-md" : "border border-white/30",
         getCardBackground(),
-        "glass-card hover-lift",
+        "glass-card animate-float",
         className
       )}
       style={style}
