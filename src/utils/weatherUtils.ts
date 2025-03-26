@@ -1,4 +1,3 @@
-
 // Weather utility functions for fetching and processing weather data
 
 export interface WeatherData {
@@ -20,6 +19,11 @@ export interface WeatherData {
     temperature: number;
     condition: string;
   }>;
+  outfitSuggestion?: {
+    clothing: string[];
+    accessories: string[];
+    advice: string;
+  };
 }
 
 // Map Visual Crossing condition codes to our app's condition types
@@ -65,6 +69,67 @@ const formatTime = (timeStr: string, index: number): string => {
   
   const date = new Date(timeStr);
   return date.toLocaleTimeString('en-US', { hour: 'numeric', hour12: true });
+};
+
+// Generate outfit suggestions based on weather conditions
+export const getOutfitSuggestion = (
+  temperature: number,
+  condition: string,
+  windSpeed: number
+): { clothing: string[]; accessories: string[]; advice: string } => {
+  const clothing: string[] = [];
+  const accessories: string[] = [];
+  let advice = "";
+
+  // Temperature-based clothing
+  if (temperature <= 0) {
+    clothing.push("Heavy winter coat", "Thermal underwear", "Sweater", "Winter pants");
+    accessories.push("Warm hat", "Insulated gloves", "Thick scarf", "Warm boots");
+    advice = "Layer up! It's freezing outside.";
+  } else if (temperature <= 10) {
+    clothing.push("Winter coat", "Sweater", "Long-sleeve shirt", "Jeans or warm pants");
+    accessories.push("Light gloves", "Beanie or hat");
+    advice = "It's quite cold, dress warmly.";
+  } else if (temperature <= 20) {
+    clothing.push("Light jacket or hoodie", "Long-sleeve shirt", "Jeans or pants");
+    if (temperature < 15) {
+      accessories.push("Light scarf");
+    }
+    advice = "Cool weather, a light jacket should be sufficient.";
+  } else if (temperature <= 25) {
+    clothing.push("T-shirt", "Light pants or jeans");
+    advice = "Pleasant temperature, dress comfortably.";
+  } else {
+    clothing.push("T-shirt", "Shorts or light pants");
+    accessories.push("Sunglasses", "Hat");
+    advice = "Hot weather, dress light and stay hydrated!";
+  }
+
+  // Condition-based adjustments
+  if (condition.includes("rain")) {
+    clothing.push("Waterproof jacket");
+    accessories.push("Umbrella");
+    advice += " Don't forget rain protection!";
+  } else if (condition.includes("thunderstorm")) {
+    clothing.push("Waterproof jacket");
+    accessories.push("Umbrella");
+    advice += " Severe weather expected. Consider staying indoors if possible.";
+  } else if (condition.includes("snow")) {
+    clothing.push("Waterproof boots");
+    accessories.push("Warm socks");
+    advice += " Watch out for slippery surfaces.";
+  } else if (condition.includes("clear") && temperature > 20) {
+    accessories.push("Sunscreen");
+    advice += " Apply sunscreen to protect your skin.";
+  }
+
+  // Wind-based adjustments
+  if (windSpeed > 20) {
+    accessories.push("Windbreaker");
+    advice += " It's windy outside, secure loose clothing.";
+  }
+
+  return { clothing, accessories, advice };
 };
 
 export const fetchWeatherData = async (location: string): Promise<WeatherData> => {
@@ -136,11 +201,19 @@ export const fetchWeatherData = async (location: string): Promise<WeatherData> =
       condition: mapWeatherCondition(item.conditions)
     }));
     
+    // Generate outfit suggestion based on current weather
+    const outfitSuggestion = getOutfitSuggestion(
+      current.temperature,
+      current.condition,
+      current.windSpeed
+    );
+    
     return {
       location: locationData.address,
       current,
       forecast: dailyForecasts,
-      hourlyForecast: hourlyForecasts
+      hourlyForecast: hourlyForecasts,
+      outfitSuggestion
     };
   } catch (error) {
     console.error('Error fetching weather data:', error);
@@ -154,15 +227,16 @@ const createFallbackData = (location: string): WeatherData => {
   const conditions = ["clear-day", "clear-night", "cloudy", "rain", "thunderstorm", "snow", "mist", "windy"];
   const randomCondition = conditions[Math.floor(Math.random() * conditions.length)];
   const randomTemp = Math.floor(Math.random() * 15) + 15; // 15-30 degrees
+  const randomWindSpeed = Math.floor(Math.random() * 20) + 5; // 5-25 km/h
   
-  return {
+  const weatherData = {
     location,
     current: {
       temperature: randomTemp,
       feelsLike: randomTemp + (Math.random() > 0.5 ? 1 : -1),
       condition: randomCondition,
       humidity: Math.floor(Math.random() * 50) + 30, // 30-80%
-      windSpeed: Math.floor(Math.random() * 20) + 5, // 5-25 km/h
+      windSpeed: randomWindSpeed,
     },
     forecast: Array(7).fill(null).map((_, i) => ({
       date: i === 0 ? "Today" : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][i-1],
@@ -175,6 +249,15 @@ const createFallbackData = (location: string): WeatherData => {
       condition: conditions[Math.floor(Math.random() * conditions.length)],
     })),
   };
+  
+  // Add outfit suggestion to mock data
+  weatherData.outfitSuggestion = getOutfitSuggestion(
+    weatherData.current.temperature,
+    weatherData.current.condition,
+    weatherData.current.windSpeed
+  );
+  
+  return weatherData;
 };
 
 export const getRandomCondition = (): string => {

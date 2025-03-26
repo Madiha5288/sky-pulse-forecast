@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { CurrentWeather } from "@/components/CurrentWeather";
 import { WeatherForecast } from "@/components/WeatherForecast";
 import { HourlyForecast } from "@/components/HourlyForecast";
+import { OutfitSuggestions } from "@/components/OutfitSuggestions";
 import { SearchBar } from "@/components/SearchBar";
 import { fetchWeatherData, WeatherData } from "@/utils/weatherUtils";
 import { useToast } from "@/components/ui/use-toast";
@@ -75,6 +76,10 @@ const Index = () => {
                 humidity={weatherData.current.humidity}
                 windSpeed={weatherData.current.windSpeed}
               />
+              
+              {weatherData.outfitSuggestion && (
+                <OutfitSuggestions outfitSuggestion={weatherData.outfitSuggestion} />
+              )}
               
               <HourlyForecast hourlyForecast={weatherData.hourlyForecast} />
               
