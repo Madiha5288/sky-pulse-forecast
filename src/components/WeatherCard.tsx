@@ -36,6 +36,8 @@ export const WeatherCard: React.FC<WeatherCardProps> = ({
         return "weather-gradient-snow";
       case "mist":
         return "weather-gradient-mist";
+      case "windy":
+        return "weather-gradient-windy";
       default:
         return "weather-gradient-clear";
     }
