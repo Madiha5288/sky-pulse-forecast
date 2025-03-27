@@ -16,14 +16,21 @@ export const fetchWeatherData = async (location: string): Promise<WeatherData> =
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY || ''}`,
       },
       body: JSON.stringify({ location }),
     });
     
     if (!response.ok) {
-      const errorData = await response.json();
+      const errorText = await response.text();
+      let errorData;
+      try {
+        errorData = JSON.parse(errorText);
+      } catch (e) {
+        errorData = { error: errorText || 'Unknown error occurred' };
+      }
       console.error('API Error:', errorData);
-      throw new Error(errorData.error || 'Failed to fetch weather data');
+      throw new Error(errorData.error || `Failed to fetch weather data (${response.status})`);
     }
     
     const data = await response.json();

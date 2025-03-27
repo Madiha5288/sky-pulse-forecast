@@ -24,14 +24,24 @@ serve(async (req) => {
       )
     }
 
+    if (!OPENWEATHER_API_KEY) {
+      return new Response(
+        JSON.stringify({ error: 'API key not configured' }),
+        { 
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      )
+    }
+
     // First, get coordinates for the location
     const geoUrl = `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(location)}&limit=1&appid=${OPENWEATHER_API_KEY}`
     const geoResponse = await fetch(geoUrl)
     const geoData = await geoResponse.json()
     
-    if (!geoData || geoData.length === 0 || geoData.cod === 401) {
+    if (!geoData || geoData.length === 0) {
       return new Response(
-        JSON.stringify({ error: 'Location not found or API key invalid', details: geoData }),
+        JSON.stringify({ error: 'Location not found', details: geoData }),
         { 
           status: 404,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -44,20 +54,21 @@ serve(async (req) => {
     // Then, get current weather and forecast
     const weatherUrl = `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&units=metric&exclude=minutely,alerts&appid=${OPENWEATHER_API_KEY}`
     const weatherResponse = await fetch(weatherUrl)
-    const weatherData = await weatherResponse.json()
     
-    if (!weatherData || weatherData.cod === 401) {
+    if (!weatherResponse.ok) {
+      const errorData = await weatherResponse.text()
       return new Response(
-        JSON.stringify({ error: 'Weather data not available or API key invalid', details: weatherData }),
+        JSON.stringify({ error: 'Weather data not available', details: errorData }),
         { 
-          status: 404,
+          status: weatherResponse.status,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       )
     }
+    
+    const weatherData = await weatherResponse.json()
 
     // Process and return the weather data
-    // We'll do minimal processing here and let the frontend handle the rest
     return new Response(
       JSON.stringify({
         location: `${name}, ${country || ''}`,
@@ -72,8 +83,9 @@ serve(async (req) => {
     )
 
   } catch (error) {
+    console.error('Error in get-weather function:', error)
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: error.message || 'Internal server error' }),
       { 
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
