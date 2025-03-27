@@ -248,14 +248,12 @@ const createFallbackData = (location: string): WeatherData => {
       temperature: randomTemp + Math.floor(Math.random() * 5) - 2,
       condition: conditions[Math.floor(Math.random() * conditions.length)],
     })),
+    outfitSuggestion: getOutfitSuggestion(
+      randomTemp,
+      randomCondition,
+      randomWindSpeed
+    )
   };
-  
-  // Add outfit suggestion to mock data
-  weatherData.outfitSuggestion = getOutfitSuggestion(
-    weatherData.current.temperature,
-    weatherData.current.condition,
-    weatherData.current.windSpeed
-  );
   
   return weatherData;
 };
