@@ -26,48 +26,47 @@ export interface WeatherData {
   };
 }
 
-// Map Visual Crossing condition codes to our app's condition types
-const mapWeatherCondition = (condition: string, isDay: boolean = true): string => {
-  const lcCondition = condition.toLowerCase();
-  
-  if (lcCondition.includes('thunder') || lcCondition.includes('tstorm')) {
+// Map OpenWeatherMap condition codes to our app's condition types
+const mapWeatherCondition = (conditionCode: number, isDay: boolean = true): string => {
+  // Weather condition codes: https://openweathermap.org/weather-conditions
+  if (conditionCode >= 200 && conditionCode < 300) {
     return 'thunderstorm';
   }
-  if (lcCondition.includes('rain') || lcCondition.includes('shower') || lcCondition.includes('drizzle')) {
+  if (conditionCode >= 300 && conditionCode < 400) {
+    return 'rain'; // drizzle maps to rain
+  }
+  if (conditionCode >= 500 && conditionCode < 600) {
     return 'rain';
   }
-  if (lcCondition.includes('snow') || lcCondition.includes('flurr') || lcCondition.includes('ice')) {
+  if (conditionCode >= 600 && conditionCode < 700) {
     return 'snow';
   }
-  if (lcCondition.includes('fog') || lcCondition.includes('mist') || lcCondition.includes('haz')) {
+  if (conditionCode >= 700 && conditionCode < 800) {
     return 'mist';
   }
-  if (lcCondition.includes('clear')) {
+  if (conditionCode === 800) {
     return isDay ? 'clear-day' : 'clear-night';
   }
-  if (lcCondition.includes('cloud') || lcCondition.includes('overcast')) {
+  if (conditionCode > 800 && conditionCode < 900) {
     return 'cloudy';
-  }
-  if (lcCondition.includes('wind')) {
-    return 'windy';
   }
   
   return isDay ? 'clear-day' : 'clear-night'; // Default
 };
 
 // Format the date for the forecast
-const formatDay = (dateStr: string, index: number): string => {
+const formatDay = (timestamp: number, index: number): string => {
   if (index === 0) return 'Today';
   
-  const date = new Date(dateStr);
+  const date = new Date(timestamp * 1000);
   return date.toLocaleDateString('en-US', { weekday: 'short' });
 };
 
 // Format the time for hourly forecast
-const formatTime = (timeStr: string, index: number): string => {
+const formatTime = (timestamp: number, index: number): string => {
   if (index === 0) return 'Now';
   
-  const date = new Date(timeStr);
+  const date = new Date(timestamp * 1000);
   return date.toLocaleTimeString('en-US', { hour: 'numeric', hour12: true });
 };
 
@@ -136,69 +135,53 @@ export const fetchWeatherData = async (location: string): Promise<WeatherData> =
   console.log(`Fetching weather data for: ${location}`);
   
   try {
-    const encodedLocation = encodeURIComponent(location);
-    const url = `https://visual-crossing-weather.p.rapidapi.com/forecast?aggregateHours=1&location=${encodedLocation}&contentType=json&unitGroup=metric&shortColumnNames=false`;
+    // OpenWeatherMap API configuration
+    const API_KEY = "69042c5027e95e52aa581e8bfe753cc1"; // Free tier API key
     
-    const options = {
-      method: 'GET',
-      headers: {
-        'X-RapidAPI-Key': '7a3fcdb816msh8578eb120aa3ea1p14a3eejsn4ce5db8259e8',
-        'X-RapidAPI-Host': 'visual-crossing-weather.p.rapidapi.com'
-      }
-    };
-
-    const response = await fetch(url, options);
-    const data = await response.json();
+    // First, get coordinates for the location
+    const geoUrl = `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(location)}&limit=1&appid=${API_KEY}`;
+    const geoResponse = await fetch(geoUrl);
+    const geoData = await geoResponse.json();
     
-    if (!data || !data.locations || Object.keys(data.locations).length === 0) {
+    if (!geoData || geoData.length === 0) {
       throw new Error('Location not found');
     }
     
-    const locationKey = Object.keys(data.locations)[0];
-    const locationData = data.locations[locationKey];
-    const valuesArray = locationData.values;
+    const { lat, lon, name, country } = geoData[0];
     
-    if (!valuesArray || valuesArray.length === 0) {
+    // Then, get current weather and forecast
+    const weatherUrl = `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&units=metric&exclude=minutely,alerts&appid=${API_KEY}`;
+    const weatherResponse = await fetch(weatherUrl);
+    const weatherData = await weatherResponse.json();
+    
+    if (!weatherData) {
       throw new Error('No weather data available');
     }
     
-    // Process current weather (first entry in values)
-    const currentData = valuesArray[0];
-    const isDay = new Date().getHours() > 6 && new Date().getHours() < 18;
+    // Process current weather
+    const currentData = weatherData.current;
+    const isDay = currentData.dt > weatherData.current.sunrise && currentData.dt < weatherData.current.sunset;
     
     const current = {
       temperature: Math.round(currentData.temp),
-      feelsLike: Math.round(currentData.feelslike),
-      condition: mapWeatherCondition(currentData.conditions, isDay),
-      humidity: Math.round(currentData.humidity),
-      windSpeed: Math.round(currentData.wspd),
+      feelsLike: Math.round(currentData.feels_like),
+      condition: mapWeatherCondition(currentData.weather[0].id, isDay),
+      humidity: currentData.humidity,
+      windSpeed: Math.round(currentData.wind_speed * 3.6), // Convert m/s to km/h
     };
     
     // Process daily forecast (get one entry per day)
-    const dailyForecasts = [];
-    const processedDays = new Set();
-    
-    for (let i = 0; i < valuesArray.length; i++) {
-      const item = valuesArray[i];
-      const day = new Date(item.datetime).toDateString();
-      
-      if (!processedDays.has(day)) {
-        processedDays.add(day);
-        dailyForecasts.push({
-          date: formatDay(item.datetime, dailyForecasts.length),
-          temperature: Math.round(item.temp),
-          condition: mapWeatherCondition(item.conditions)
-        });
-        
-        if (dailyForecasts.length >= 7) break;
-      }
-    }
+    const dailyForecasts = weatherData.daily.slice(0, 7).map((day: any, index: number) => ({
+      date: formatDay(day.dt, index),
+      temperature: Math.round(day.temp.day),
+      condition: mapWeatherCondition(day.weather[0].id)
+    }));
     
     // Process hourly forecast (first 9 entries)
-    const hourlyForecasts = valuesArray.slice(0, 9).map((item, index) => ({
-      time: formatTime(item.datetime, index),
-      temperature: Math.round(item.temp),
-      condition: mapWeatherCondition(item.conditions)
+    const hourlyForecasts = weatherData.hourly.slice(0, 9).map((hour: any, index: number) => ({
+      time: formatTime(hour.dt, index),
+      temperature: Math.round(hour.temp),
+      condition: mapWeatherCondition(hour.weather[0].id)
     }));
     
     // Generate outfit suggestion based on current weather
@@ -209,7 +192,7 @@ export const fetchWeatherData = async (location: string): Promise<WeatherData> =
     );
     
     return {
-      location: locationData.address,
+      location: `${name}, ${country}`,
       current,
       forecast: dailyForecasts,
       hourlyForecast: hourlyForecasts,
