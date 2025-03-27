@@ -135,32 +135,29 @@ export const fetchWeatherData = async (location: string): Promise<WeatherData> =
   console.log(`Fetching weather data for: ${location}`);
   
   try {
-    // OpenWeatherMap API configuration
-    const API_KEY = "69042c5027e95e52aa581e8bfe753cc1"; // Free tier API key
+    // Use Supabase Edge Function to fetch weather data securely
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+    const apiEndpoint = `${supabaseUrl}/functions/v1/get-weather`;
     
-    // First, get coordinates for the location
-    const geoUrl = `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(location)}&limit=1&appid=${API_KEY}`;
-    const geoResponse = await fetch(geoUrl);
-    const geoData = await geoResponse.json();
+    const response = await fetch(apiEndpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ location }),
+    });
     
-    if (!geoData || geoData.length === 0) {
-      throw new Error('Location not found');
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('API Error:', errorData);
+      throw new Error(errorData.error || 'Failed to fetch weather data');
     }
     
-    const { lat, lon, name, country } = geoData[0];
-    
-    // Then, get current weather and forecast
-    const weatherUrl = `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&units=metric&exclude=minutely,alerts&appid=${API_KEY}`;
-    const weatherResponse = await fetch(weatherUrl);
-    const weatherData = await weatherResponse.json();
-    
-    if (!weatherData) {
-      throw new Error('No weather data available');
-    }
+    const data = await response.json();
     
     // Process current weather
-    const currentData = weatherData.current;
-    const isDay = currentData.dt > weatherData.current.sunrise && currentData.dt < weatherData.current.sunset;
+    const currentData = data.current;
+    const isDay = currentData.dt > data.current.sunrise && currentData.dt < data.current.sunset;
     
     const current = {
       temperature: Math.round(currentData.temp),
@@ -171,14 +168,14 @@ export const fetchWeatherData = async (location: string): Promise<WeatherData> =
     };
     
     // Process daily forecast (get one entry per day)
-    const dailyForecasts = weatherData.daily.slice(0, 7).map((day: any, index: number) => ({
+    const dailyForecasts = data.daily.slice(0, 7).map((day: any, index: number) => ({
       date: formatDay(day.dt, index),
       temperature: Math.round(day.temp.day),
       condition: mapWeatherCondition(day.weather[0].id)
     }));
     
     // Process hourly forecast (first 9 entries)
-    const hourlyForecasts = weatherData.hourly.slice(0, 9).map((hour: any, index: number) => ({
+    const hourlyForecasts = data.hourly.slice(0, 9).map((hour: any, index: number) => ({
       time: formatTime(hour.dt, index),
       temperature: Math.round(hour.temp),
       condition: mapWeatherCondition(hour.weather[0].id)
@@ -192,7 +189,7 @@ export const fetchWeatherData = async (location: string): Promise<WeatherData> =
     );
     
     return {
-      location: `${name}, ${country}`,
+      location: data.location,
       current,
       forecast: dailyForecasts,
       hourlyForecast: hourlyForecasts,
