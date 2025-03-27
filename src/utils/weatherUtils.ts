@@ -19,7 +19,7 @@ export interface WeatherData {
     temperature: number;
     condition: string;
   }>;
-  outfitSuggestion?: {
+  outfitSuggestion: {
     clothing: string[];
     accessories: string[];
     advice: string;
