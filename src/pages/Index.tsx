@@ -5,7 +5,7 @@ import { WeatherForecast } from "@/components/WeatherForecast";
 import { HourlyForecast } from "@/components/HourlyForecast";
 import { OutfitSuggestions } from "@/components/OutfitSuggestions";
 import { SearchBar } from "@/components/SearchBar";
-import { fetchWeatherData, WeatherData } from "@/utils/weatherUtils";
+import { fetchWeatherData, WeatherData } from "@/utils/weather";
 import { useToast } from "@/components/ui/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 
